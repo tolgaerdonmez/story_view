@@ -21,6 +21,7 @@ class StoryItem {
   /// Specifies how long the page should be displayed. It should be a reasonable
   /// amount of time greater than 0 milliseconds.
   final Duration duration;
+  final Positioned? gesturePositioned;
 
   /// Has this page been shown already? This is used to indicate that the page
   /// has been displayed. If some pages are supposed to be skipped in a story,
@@ -34,11 +35,8 @@ class StoryItem {
 
   /// The page content
   final Widget view;
-  StoryItem(
-    this.view, {
-    required this.duration,
-    this.shown = false,
-  });
+  StoryItem(this.view,
+      {required this.duration, this.shown = false, this.gesturePositioned});
 
   /// Short hand to create text-only page.
   ///
@@ -663,6 +661,7 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               alignment: Alignment.centerRight,
               heightFactor: 1,
               child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
                 onTapDown: (details) {
                   widget.controller.pause();
                 },
@@ -716,11 +715,15 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
             alignment: Alignment.centerLeft,
             heightFactor: 1,
             child: SizedBox(
-                child: GestureDetector(onTap: () {
-                  widget.controller.previous();
-                }),
+                child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () {
+                      widget.controller.previous();
+                    }),
                 width: 70),
           ),
+          if (_currentStory != null && _currentStory?.gesturePositioned != null)
+            _currentStory!.gesturePositioned!
         ],
       ),
     );
@@ -831,11 +834,11 @@ class StoryProgressIndicator extends StatelessWidget {
         this.indicatorHeight,
       ),
       foregroundPainter: IndicatorOval(
-        this.indicatorForegroundColor?? Colors.white.withOpacity(0.8),
+        this.indicatorForegroundColor ?? Colors.white.withOpacity(0.8),
         this.value,
       ),
       painter: IndicatorOval(
-        this.indicatorColor?? Colors.white.withOpacity(0.4),
+        this.indicatorColor ?? Colors.white.withOpacity(0.4),
         1.0,
       ),
     );
