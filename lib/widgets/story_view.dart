@@ -35,8 +35,15 @@ class StoryItem {
 
   /// The page content
   final Widget view;
-  StoryItem(this.view,
-      {required this.duration, this.shown = false, this.gesturePositioned});
+
+  final bool willPersist;
+  StoryItem(
+    this.view, {
+    required this.duration,
+    this.shown = false,
+    this.gesturePositioned,
+    this.willPersist = false,
+  });
 
   /// Short hand to create text-only page.
   ///
@@ -547,6 +554,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
     _currentAnimation =
         Tween(begin: 0.0, end: 1.0).animate(_animationController!);
 
+    if (storyItem.willPersist) {
+      return;
+    }
     widget.controller.play();
   }
 
@@ -663,12 +673,21 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
                 onTapDown: (details) {
+                  if (_currentStory != null) {
+                    if (_currentStory!.willPersist) return;
+                  }
                   widget.controller.pause();
                 },
                 onTapCancel: () {
+                  if (_currentStory != null) {
+                    if (_currentStory!.willPersist) return;
+                  }
                   widget.controller.play();
                 },
                 onTapUp: (details) {
+                  if (_currentStory != null) {
+                    if (_currentStory!.willPersist) return;
+                  }
                   // if debounce timed out (not active) then continue anim
                   if (_nextDebouncer?.isActive == false) {
                     widget.controller.play();
@@ -679,11 +698,17 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 onVerticalDragStart: widget.onVerticalSwipeComplete == null
                     ? null
                     : (details) {
+                        if (_currentStory != null) {
+                          if (_currentStory!.willPersist) return;
+                        }
                         widget.controller.pause();
                       },
                 onVerticalDragCancel: widget.onVerticalSwipeComplete == null
                     ? null
                     : () {
+                        if (_currentStory != null) {
+                          if (_currentStory!.willPersist) return;
+                        }
                         widget.controller.play();
                       },
                 onVerticalDragUpdate: widget.onVerticalSwipeComplete == null
@@ -700,6 +725,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 onVerticalDragEnd: widget.onVerticalSwipeComplete == null
                     ? null
                     : (details) {
+                        if (_currentStory != null) {
+                          if (_currentStory!.willPersist) return;
+                        }
                         widget.controller.play();
                         // finish up drag cycle
                         if (!verticalDragInfo!.cancel &&
@@ -718,6 +746,9 @@ class StoryViewState extends State<StoryView> with TickerProviderStateMixin {
                 child: GestureDetector(
                     behavior: HitTestBehavior.translucent,
                     onTap: () {
+                      if (_currentStory != null) {
+                        if (_currentStory!.willPersist) return;
+                      }
                       widget.controller.previous();
                     }),
                 width: 70),
